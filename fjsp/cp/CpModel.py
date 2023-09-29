@@ -1,9 +1,9 @@
-from typing import Union
+from typing import Optional, Union
 
 from docplex.cp.expression import CpoIntervalVar, CpoSequenceVar
 from docplex.cp.model import CpoModel
 
-from fjsp.ProblemData import Machine, Operation
+from fjsp.ProblemData import Machine, Operation, Silo
 
 
 class CpModel(CpoModel):
@@ -18,7 +18,10 @@ class CpModel(CpoModel):
         self._variables = {}
 
     def add_interval_var(
-        self, letter: str, *args: Union[int, Operation, Machine], **kwargs
+        self,
+        letter: str,
+        *args: Union[int, Optional[str], Operation, Machine],
+        **kwargs,
     ) -> CpoIntervalVar:
         """
         Adds and names an interval variable with the given letter and arguments.
@@ -29,7 +32,10 @@ class CpModel(CpoModel):
         return var
 
     def add_sequence_var(
-        self, letter: str, *args: Union[int, Operation, Machine], **kwargs
+        self,
+        letter: str,
+        *args: Union[int, Optional[str], Operation, Machine],
+        **kwargs,
     ) -> CpoSequenceVar:
         """
         Adds and names a sequence variable with the given letter and arguments.
@@ -39,7 +45,9 @@ class CpModel(CpoModel):
         self._variables[var.name] = var
         return var
 
-    def get_var(self, letter: str, *args: Union[int, Operation, Machine]):
+    def get_var(
+        self, letter: str, *args: Union[int, Optional[str], Operation, Machine]
+    ):
         """
         Returns the variable with the given letter and arguments.
 
@@ -52,7 +60,9 @@ class CpModel(CpoModel):
         """
         return self._variables[self._name_var(letter, *args)]
 
-    def _name_var(self, letter: str, *args: Union[int, Operation, Machine]):
+    def _name_var(
+        self, letter: str, *args: Union[int, Optional[str], Operation, Machine]
+    ):
         """
         Returns the name of the variable with the given letter and arguments.
 
@@ -79,5 +89,10 @@ class CpModel(CpoModel):
             assert isinstance(machine, Machine)
 
             return f"S_{machine.idx}"
+        elif letter == "P":
+            product_type, machine = args
+            assert isinstance(machine, Silo)
+
+            return f"P_{product_type}_{machine.idx}"
         else:
             raise ValueError(f"Unknown variable type: {letter}")
