@@ -33,7 +33,10 @@ def default_model(data: ProblemData) -> CpoModel:
     assign_vars = assignment_variables(model, data)
     seq_vars = sequence_variables(model, data, assign_vars)
 
-    model.add(makespan(model, data, job_vars))
+    if data.objective == "makespan":
+        model.add(makespan(model, data, op_vars))
+    else:
+        raise ValueError(f"Unknown objective: {data.objective}")
 
     model.add(job_data_constraints(model, data, job_vars))
     model.add(job_operation_constraints(model, data, job_vars, op_vars))
